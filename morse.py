@@ -4,5 +4,31 @@ def encode(message):
     return ' '.join(morse_dict.get(char.upper(), '') for char in message)
 
 def decode(morse_code):
-    reverse_dict = {v: k for k, v in morse_dict.items()}
-    return ''.join(reverse_dict.get(code, '') for code in morse_code.split())
+    words = morse_code.split('  ')
+    decoded = []
+    for word in words:
+        letters = word.split()
+        decoded.append(''.join(next((k for k, v in morse_dict.items() if v == letter), '') for letter in letters))
+    return ' '.join(decoded)
+
+if __name__ == '__main__':
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description='Morse code encoder/decoder')
+    subparsers = parser.add_subparsers(dest='command')
+
+    encode_parser = subparsers.add_parser('encode')
+    encode_parser.add_argument('text', nargs='?', type=str)
+
+    decode_parser = subparsers.add_parser('decode')
+    decode_parser.add_argument('morse', nargs='?', type=str)
+
+    args = parser.parse_args()
+
+    if args.command == 'encode':
+        text = args.text or sys.stdin.read()
+        print(encode(text))
+    elif args.command == 'decode':
+        morse = args.morse or sys.stdin.read()
+        print(decode(morse))
